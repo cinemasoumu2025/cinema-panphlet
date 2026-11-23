@@ -39,6 +39,27 @@
     .choice input:focus-visible + span { outline: 3px solid #b7c9dd; outline-offset: 2px; }
     .results-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 30px 2px 14px; }
     .results-head h2 { margin: 0; font-size: 1.12rem; }
+    .sort-controls {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.sort-button {
+  padding: 7px 13px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.sort-button.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
     .count { color: var(--muted); font-size: .86rem; }
     .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
     .card {
@@ -95,14 +116,29 @@
       <p class="status" id="status" aria-live="polite">データを読み込んでいます…</p>
     </section>
 
-    <div class="results-head">
-      <h2>パンフレット</h2>
-      <span class="count" id="count">— 件</span>
-    </div>
-    <section class="cards" id="cards" aria-live="polite">
-      <div class="message">スプレッドシートからデータを読み込んでいます。</div>
-    </section>
-    <footer>シネマクラブ</footer>
+<div class="results-head">
+  <h2>パンフレット</h2>
+
+  <div class="sort-controls">
+    <button class="sort-button active" data-sort="desc">
+      新しい順
+    </button>
+
+    <button class="sort-button" data-sort="asc">
+      古い順
+    </button>
+  </div>
+
+  <span class="count" id="count">— 件</span>
+</div>
+
+<section class="cards" id="cards" aria-live="polite">
+  <div class="message">
+    スプレッドシートからデータを読み込んでいます。
+  </div>
+</section>
+
+<footer>シネマクラブ</footer>
   </main>
 
   <script>
@@ -112,6 +148,24 @@
     const EVENT_TYPES = ["友好祭", "白鷺祭", "森之宮"];
     const TARGETS = ["A_大人", "B_一般", "C_こども", "E_English"];
     let pamphlets = [];
+    // 並び替えの初期設定
+  let sortOrder = "desc";
+
+    // 並び替えボタンの動作
+  document.querySelectorAll(".sort-button").forEach(button => {
+  button.addEventListener("click", () => {
+
+    sortOrder = button.dataset.sort;
+
+    // 選択中のボタンの色を変更
+    document.querySelectorAll(".sort-button").forEach(b => {
+      b.classList.toggle("active", b === button);
+    });
+
+    // 一覧を再表示
+    renderCards();
+  });
+});
 
     function updateClock() {
       document.getElementById("clock").textContent =
