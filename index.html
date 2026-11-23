@@ -75,6 +75,23 @@
     .card h3 { margin: 18px 0 10px; font-size: 1.12rem; line-height: 1.45; }
     .target { color: var(--muted); font-size: .82rem; }
     .open-label { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 18px; color: var(--accent); font-size: .85rem; font-weight: 700; }
+    .open-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding: 10px 14px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 9px;
+  text-decoration: none;
+  font-size: .85rem;
+  font-weight: 700;
+}
+
+.open-button:hover {
+  opacity: .85;
+}
     .message { grid-column: 1 / -1; padding: 34px 18px; text-align: center; color: var(--muted); background: #fff; border: 1px dashed #d9dee5; border-radius: 16px; }
     .status { margin: 13px 2px 0; color: var(--muted); font-size: .78rem; }
     footer { margin-top: 35px; color: #8a919b; text-align: center; font-size: .75rem; }
@@ -307,45 +324,70 @@
         return;
       }
 
-      filtered.forEach(p => {
-        const url = safeHttpUrl(p.url);
-        const card = document.createElement(url ? "a" : "article");
-        card.className = "card";
-        if (url) {
-          card.href = url;
-          card.target = "_blank";
-          card.rel = "noopener noreferrer";
-          card.addEventListener("click", () => logAction("クリック", p));
-        }
-        const top = document.createElement("div");
-        top.className = "card-top";
-        const tag = document.createElement("span");
-        tag.className = "tag";
-        tag.textContent = p.type;
-        const date = document.createElement("span");
-        date.className = "date";
-        date.textContent = p.year + "年 " + p.month + "月";
-        top.append(tag, date);
+filtered.forEach(p => {
+  const url = safeHttpUrl(p.url);
 
-        const title = document.createElement("h3");
-        title.textContent = p.name;
-        const target = document.createElement("div");
-        target.className = "target";
-        target.textContent = p.target;
-        card.append(top, title, target);
+  // カード本体
+  const card = document.createElement("article");
+  card.className = "card";
 
-        if (url) {
-          const open = document.createElement("div");
-          open.className = "open-label";
-          const text = document.createElement("span");
-          text.textContent = "パンフレットを見る";
-          const arrow = document.createElement("span");
-          arrow.textContent = "↗";
-          open.append(text, arrow);
-          card.appendChild(open);
-        }
-        cards.appendChild(card);
-      });
+  // イベント種別と年月
+  const top = document.createElement("div");
+  top.className = "card-top";
+
+  const tag = document.createElement("span");
+  tag.className = "tag";
+  tag.textContent = p.type;
+
+  const date = document.createElement("span");
+  date.className = "date";
+  date.textContent = p.year + "年 " + p.month + "月";
+
+  top.append(tag, date);
+
+  // イベント名
+  const title = document.createElement("h3");
+  title.textContent = p.name;
+
+  // 対象者・言語
+  const target = document.createElement("div");
+  target.className = "target";
+  target.textContent = p.target;
+
+  card.append(top, title, target);
+
+  // パンフレットを見るボタン
+  if (url) {
+    const open = document.createElement("a");
+    open.className = "open-button";
+    open.href = url;
+    open.target = "_blank";
+    open.rel = "noopener noreferrer";
+
+    const text = document.createElement("span");
+    text.textContent = "パンフレットを見る";
+
+    const arrow = document.createElement("span");
+    arrow.textContent = "↗";
+
+    open.append(text, arrow);
+
+    // クリックログを記録
+    open.addEventListener("click", () => {
+      logAction("クリック", p);
+    });
+
+    card.appendChild(open);
+  } else {
+    const notice = document.createElement("div");
+    notice.className = "target";
+    notice.textContent = "パンフレットのURLが登録されていません。";
+    card.appendChild(notice);
+  }
+
+  cards.appendChild(card);
+});
+      
     }
 
     loadData();
