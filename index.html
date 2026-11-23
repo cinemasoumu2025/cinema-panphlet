@@ -284,9 +284,16 @@
         (!types.length || types.includes(p.type)) &&
         (!targets.length || targets.includes(p.target)) &&
         (!years.length || years.includes(String(p.year)))
-      ).sort((a, b) =>
-        (Number(b.year) - Number(a.year)) || (Number(b.month) - Number(a.month))
-      );
+      ).sort((a, b) => {
+
+  const dateA = Number(a.year) * 12 + Number(a.month);
+  const dateB = Number(b.year) * 12 + Number(b.month);
+
+  return sortOrder === "desc"
+    ? dateB - dateA
+    : dateA - dateB;
+
+});
 
       document.getElementById("count").textContent = filtered.length + " 件";
       const cards = document.getElementById("cards");
